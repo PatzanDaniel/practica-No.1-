@@ -1,0 +1,325 @@
+openapi: 3.0.0
+info:
+  title: API de Usuarios y Mensajes
+  version: 1.0.0
+  description: API para gestionar usuarios, iniciar sesión y crear mensajes vinculados al usuario logueado.
+
+servers:
+  - url: http://localhost:3000/api/usuario
+
+paths:
+  /crear:
+    post:
+      summary: Crear un nuevo usuario
+      description: Crea un usuario en la base de datos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nombre
+                - correo
+                - pass
+                - rol
+              properties:
+                nombre:
+                  type: string
+                  example: "fer"
+                correo:
+                  type: string
+                  example: "fer@gmail.com"
+                pass:
+                  type: string
+                  example: "123456"
+                rol:
+                  type: string
+                  example: "admin"
+      responses:
+        "201":
+          description: Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  nombre:
+                    type: string
+                    example: "fer"
+                  correo:
+                    type: string
+                    example: "fer@gmail.com"
+                  rol:
+                    type: string
+                    example: "admin"
+                  fecha_crecion:
+                    type: string
+                    format: date-time
+                    example: "2025-09-19T14:35:20.000Z"
+
+  /sesion:
+    post:
+      summary: Iniciar sesión
+      description: Login con correo y contraseña.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - correo
+                - pass
+              properties:
+                correo:
+                  type: string
+                  example: "fer@gmail.com"
+                pass:
+                  type: string
+                  example: "123456"
+      responses:
+        "200":
+          description: Sesión iniciada correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  usuario:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      nombre:
+                        type: string
+                        example: "fer"
+                      correo:
+                        type: string
+                        example: "fer@gmail.com"
+                      rol:
+                        type: string
+                        example: "admin"
+                      fecha_crecion:
+                        type: string
+                        format: date-time
+                        example: "2025-09-19T14:35:20.000Z"
+
+  /buscar-usuario:
+    get:
+      summary: Buscar usuario por nombre
+      description: Muestra información de un usuario excepto la contraseña.
+      parameters:
+        - in: query
+          name: nombre
+          schema:
+            type: string
+          required: true
+          description: Nombre del usuario a buscar.
+          example: "fer"
+      responses:
+        "200":
+          description: Información del usuario encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nombre:
+                    type: string
+                    example: "fer"
+                  correo:
+                    type: string
+                    example: "fer@gmail.com"
+                  rol:
+                    type: string
+                    example: "admin"
+                  fecha_crecion:
+                    type: string
+                    format: date-time
+                    example: "2025-09-19T14:35:20.000Z"
+        "404":
+          description: Usuario no encontrado
+
+  /eliminar:
+    delete:
+      summary: Eliminar un usuario con verificación de correo y contraseña
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - correo
+                - pass
+              properties:
+                correo:
+                  type: string
+                  example: "fer@gmail.com"
+                pass:
+                  type: string
+                  example: "123456"
+      responses:
+        "200":
+          description: Usuario eliminado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario eliminado correctamente"
+        "404":
+          description: Usuario no encontrado o credenciales incorrectas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                    example: "Usuario no encontrado o credenciales incorrectas"
+
+  /mensaje:
+    post:
+      summary: Crear un mensaje
+      description: Crea un mensaje vinculado al usuario que ha iniciado sesión.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - texto
+              properties:
+                texto:
+                  type: string
+                  example: "Hola, este es mi mensaje"
+      responses:
+        "201":
+          description: Mensaje creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  nombre_usuario:
+                    type: string
+                    example: "fer"
+                  contenido:
+                    type: string
+                    example: "Hola, este es mi mensaje"
+                  fecha:
+                    type: string
+                    format: date-time
+                    example: "2025-09-19T15:00:00.000Z"
+        "401":
+          description: Usuario no autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Debes iniciar sesión"
+
+  /seguir:
+    post:
+      summary: Seguir a un usuario
+      description: Permite al usuario logueado seguir a otro usuario.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nombre
+              properties:
+                nombre:
+                  type: string
+                  example: "fer"
+      responses:
+        "201":
+          description: Usuario seguido correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ahora sigues a este usuario"
+    delete:
+      summary: Dejar de seguir a un usuario
+      description: Permite al usuario logueado dejar de seguir a otro usuario.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nombre
+              properties:
+                nombre:
+                  type: string
+                  example: "fer"
+      responses:
+        "200":
+          description: Usuario dejado de seguir correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Has dejado de seguir a este usuario"
+
+  /ultimos_mensajes:
+    get:
+      summary: Obtener últimos 10 mensajes del usuario y de los seguidos
+      description: Devuelve los últimos 10 mensajes tuyos y de los usuarios que sigues.
+      parameters:
+        - in: query
+          name: nombre
+          schema:
+            type: string
+          required: true
+          description: Nombre del usuario logueado
+          example: "fer"
+      responses:
+        "200":
+          description: Lista de mensajes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    nombre_usuario:
+                      type: string
+                      example: "fer"
+                    contenido:
+                      type: string
+                      example: "toy chiquito"
+                    fecha:
+                      type: string
+                      format: date-time
+                      example: "2025-09-19T20:54:06.640832"
+
+
+
